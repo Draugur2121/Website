@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ghost King - draugakonungurinn</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Orbitron:wght@300;400;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            overflow-x: hidden;
+            font-family: 'Orbitron', monospace;
+            color: #fff;
+        }
+        .comic-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000 100%);
+        }
+        .panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            padding-top: 7rem;
+        }
+        .panel.active { opacity: 1; }
+        .panel-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: brightness(0.3); z-index: -1; }
+        .title-panel .panel-bg { background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e); animation: titlePulse 8s infinite; }
+        @keyframes titlePulse { 0%, 100% { filter: brightness(0.3) hue-rotate(0deg); } 50% { filter: brightness(0.5) hue-rotate(15deg); } }
+        .hotel-panel .panel-bg {
+            background: linear-gradient(135deg, #2c2c54, #1a1a2e);
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255,215,0,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 30%, rgba(0,0,0,0.8) 0%, transparent 50%);
+        }
+        .underworld-panel .panel-bg {
+            background: linear-gradient(180deg, #000 0%, #1a0000 50%, #000 100%);
+            background-image: 
+                radial-gradient(circle at center, rgba(139,0,0,0.3) 0%, transparent 70%);
+        }
+        .main-title {
+            font-family: 'Cinzel', serif;
+            font-size: 4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            animation: ghostFlicker 3s infinite;
+        }
+        @keyframes ghostFlicker {
+            0%, 90%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+            5%, 15%, 25% { opacity: 0.7; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        }
+        .subtitle { font-size: 1.5rem; margin-bottom: 2rem; color: #cccccc; font-weight: 300; }
+        .section-title { font-family: 'Cinzel', serif; font-size: 2.5rem; margin-bottom: 1.5rem; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.6); }
+        .bio-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            text-align: left;
+            background: rgba(0,0,0,0.7);
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        .quote {
+            font-style: italic;
+            font-size: 1.3rem;
+            color: #ff6b6b;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-left: 3px solid #ff6b6b;
+            background: rgba(255,107,107,0.1);
+        }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .stat-item { background: rgba(26,26,46,0.8); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,215,0,0.3); }
+        .stat-label { color: #ffd700; font-weight: 700; margin-bottom: 0.5rem; }
+        .aliases { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin: 2rem 0; }
+        .alias {
+            background: linear-gradient(45deg, #8b0000, #4a0000);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(139,0,0,0.4);
+            animation: aliasGlow 4s infinite;
+        }
+        @keyframes aliasGlow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(139,0,0,0.4); }
+            50% { box-shadow: 0 4px 25px rgba(139,0,0,0.8); }
+        }
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: rgba(26,26,46,0.9);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #ffd700;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255,215,0,0.6);
+        }
+        .nav-btn.active {
+            background: #ffd700;
+            color: #000;
+        }
+        .social-bar {
+            position: fixed;
+            bottom: 6rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1.5rem;
+            z-index: 101;
+        }
+        .social-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #24243e;
+            color: white;
+            border: 2px solid #9147ff;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s;
+            box-shadow: 0 2px 12px rgba(145,71,255,0.2);
+        }
+        .social-btn.youtube {
+            background: #282828;
+            border-color: #ff0000;
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(255,0,0,0.2);
+        }
+        .social-btn.twitch:hover {
+            background: #9147ff;
+            color: #fff;
+        }
+        .social-btn.youtube:hover {
+            background: #ff0000;
+            color: #fff;
+        }
+        /* --- Discord Button Style --- */
+        .social-btn.discord {
+            background: #5865F2;
+            border-color: #5865F2;
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(88,101,242,0.25);
+        }
+        .social-btn.discord:hover {
+            background: #404eed;
+            border-color: #404eed;
+            color: #fff;
+        }
+        /* --- End Discord Button Style --- */
+        .tattoo-symbol { position: absolute; top: 10%; right: 10%; font-size: 3rem; color: rgba(255,255,255,0.3); animation: symbolRotate 20s infinite linear; }
+        @keyframes symbolRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .blood-drop {
+            position: absolute;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #8b0000, #4a0000);
+            border-radius: 0 0 50% 50%;
+            animation: bloodDrip 6s infinite;
+            opacity: 0;
+        }
+        @keyframes bloodDrip {
+            0% { top: -20px; opacity: 0; }
+            10% { opacity: 1; }
+            80% { top: 100vh; opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+        .glitch { position: relative; }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .glitch::before {
+            animation: glitch-1 2s infinite;
+            color: #ff0040;
+            z-index: -1;
+        }
+        .glitch::after {
+            animation: glitch-2 2s infinite;
+            color: #00ff40;
+            z-index: -2;
+        }
+        @keyframes glitch-1 {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-2px); }
+            40% { transform: translateX(2px); }
+            60% { transform: translateX(-1px); }
+            80% { transform: translateX(1px); }
+        }
+        @keyframes glitch-2 {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(2px); }
+            40% { transform: translateX(-2px); }
+            60% { transform: translateX(1px); }
+            80% { transform: translateX(-1px); }
+        }
+        .audio-controls {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 100;
+        }
+        .audio-btn {
+            background: rgba(0,0,0,0.7);
+            border: 1px solid #ffd700;
+            color: #ffd700;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        .audio-btn:hover {
+            background: #ffd700;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="comic-container">
+        <!-- Blood drops for atmosphere -->
+        <div class="blood-drop" style="left: 15%; animation-delay: 0s;"></div>
+        <div class="blood-drop" style="left: 45%; animation-delay: 2s;"></div>
+        <div class="blood-drop" style="left: 75%; animation-delay: 4s;"></div>
+        
+        <!-- Title Panel -->
+        <div class="panel title-panel active">
+            <div class="panel-bg"></div>
+            <div class="tattoo-symbol">⚔</div>
+            <h1 class="main-title glitch" data-text="The Ghost King">The Ghost King</h1>
+            <div class="subtitle">draugakonungurinn</div>
+            <div class="quote">"Never kill without reason. Never show mercy once reason's clear."</div>
+        </div>
+        
+        <!-- Identity Panel -->
+        <div class="panel identity-panel">
+            <div class="panel-bg"></div>
+            <h2 class="section-title">Identity</h2>
+            <div class="bio-text">
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Name</div>
+                        <div>Unknown — "Ghost," "Draugur," "Draugakonungurinn"</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Age</div>
+                        <div>25</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Height</div>
+                        <div>5'10" (178 cm)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Ethnicity</div>
+                        <div>Caucasian</div>
+                    </div>
+                </div>
+                <p><strong>Appearance:</strong> a fitted black jacket with a sleek design, likely with some subtle details or zippers, paired with matching black pants that have a utilitarian feel, including a belt and chains hanging from the waist. Accessories include a black wristband, a necklace with a pendant and a gold rolex.</p>
+                <p><strong>Face:</strong>Rugged and primal — like a man who’s seen the inside of cages and clawed his way out. Sharp cheekbones, tired eyes that never blink first, and a constant five o’clock shadow.</p>
+                <p><strong>Jaw:</strong> a facial scar earned during a riot and a sharp cheekbones.</p>
+                
+            </div>
+        </div>
+        
+        <!-- Public Persona Panel -->
+        <div class="panel hotel-panel">
+            <div class="panel-bg"></div>
+            <h2 class="section-title">Public Facade</h2>
+            <div class="bio-text">
+                <p><strong>Occupation:Security guard</strong> </p>
+                <p><strong>Reputation:a mystery approch with caution</strong> </p>
+                <div class="quote"> death is a gift to thouse who can no longer run from fate</div>
+            </div>
+        </div>
+        
+        <!-- Underworld Panel -->
+        <div class="panel underworld-panel">
+            <div class="panel-bg"></div>
+            <h2 class="section-title">The Shadow King</h2>
+            <div class="bio-text">
+                <p><strong>True Role:</strong> An Underworld Ghost for hire </p>
+                <p><strong>Specialties:</strong></p>
+                <ul style="margin-left: 2rem; margin-bottom: 1.5rem;">
+                    <li>Strategic sabotage</li>
+                    <li>High-level coercion</li>
+                    <li>Psychological operations</li>
+                    <li>Orchestrating "vanishing acts"</li>
+                    <li>Romantic devotion to a single partner (the only soul he'd die for — or kill quietly for)</li>
+                </ul>
+                <div class="aliases">
+                    <div class="alias">The Whisper King</div>
+                    <div class="alias">Draugur</div>
+                    <div class="alias">Ghost King</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Personality Panel -->
+        <div class="panel personality-panel">
+            <div class="panel-bg"></div>
+            <h2 class="section-title">The Man Behind The Mask</h2>
+            <div class="bio-text">
+                <p><strong>Voice:</strong> Calm. Deliberate. Low. ...</p>
+                <p><strong>Expression:</strong> A wry, knowing grin — sharp as broken glass. ...</p>
+                <p><strong>Personality Traits:</strong></p>
+                <ul style="margin-left: 2rem; margin-bottom: 1.5rem;">
+                    <li><strong>Stoic</strong> – Silent until silence is no longer strategic</li>
+                    <li><strong>Calculating</strong> – Reads a room like it's wired for sound</li>
+                    <li><strong>Vengeful</strong> – Hurting him is nothing; betrayal is where the blood starts</li>
+                    <li><strong>Charming (when it counts)</strong> – The smile of a man who sets fires with words</li>
+                    <li><strong>Code-bound</strong> – He never breaks his word. You'd better not break yours</li>
+                </ul>
+                <div class="quote">"Every act of cruelty must be justified, poetic, and unforgettable."</div>
+            </div>
+        </div>
+        
+        <!-- SOCIAL BUTTONS BAR -->
+        <div class="social-bar">
+            <a class="social-btn twitch" href="https://www.twitch.tv/draugur_og" target="_blank" rel="noopener">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" style="vertical-align:middle"><path fill="#9147FF" d="M3 2l-1 5v15h5v2h4v-2h5l5-5V2H3zm16 13.17L17 16H7v-2h5V8h-2v2H7V7h5v3h2V7h2v8.17z"/></svg>
+                Twitch
+            </a>
+            <a class="social-btn youtube" href="https://www.youtube.com/@draugakonungurinn" target="_blank" rel="noopener">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" style="vertical-align:middle"><path fill="#FF0000" d="M23.498 6.186a2.994 2.994 0 00-2.106-2.12C19.346 3.5 12 3.5 12 3.5s-7.346 0-9.392.566A2.994 2.994 0 00.502 6.186C0 8.22 0 12 0 12s0 3.78.502 5.814a2.994 2.994 0 002.106 2.12C4.654 20.5 12 20.5 12 20.5s7.346 0 9.392-.566a2.994 2.994 0 002.106-2.12C24 15.78 24 12 24 12s0-3.78-.502-5.814zM9.545 16.02V7.98l7.273 4.02-7.273 4.02z"/></svg>
+                YouTube
+            </a>
+            <!-- Discord Button Added Below -->
+            <a class="social-btn discord" href="https://discord.gg/XnYGwGQtgy" target="_blank" rel="noopener">
+                <svg width="24" height="24" viewBox="0 0 71 55" fill="none" style="vertical-align:middle">
+                    <path d="M60.104 4.552A58.31 58.31 0 0 0 46.852.8a.117.117 0 0 0-.123.06 40.731 40.731 0 0 0-1.806 3.724A56.33 56.33 0 0 0 24.143.86a.116.116 0 0 0-.124-.06A58.227 58.227 0 0 0 10.892 4.552a.104.104 0 0 0-.047.041C1.42 18.08-.443 31.294.153 44.366a.12.12 0 0 0 .045.084 59.684 59.684 0 0 0 17.963 9.101.118.118 0 0 0 .128-.042c1.382-1.885 2.616-3.871 3.678-5.965a.115.115 0 0 0-.065-.162 40.784 40.784 0 0 1-5.946-2.849.117.117 0 0 1-.011-.195c.398-.299.797-.601 1.176-.91a.115.115 0 0 1 .119-.014c12.498 5.727 26.014 5.727 38.477 0a.116.116 0 0 1 .12.013c.38.309.779.612 1.178.911a.117.117 0 0 1-.01.195 40.47 40.47 0 0 1-5.947 2.848.115.115 0 0 0-.064.163c1.062 2.093 2.296 4.08 3.678 5.965a.116.116 0 0 0 .128.043 59.649 59.649 0 0 0 17.963-9.101.115.115 0 0 0 .045-.084c.6-13.072-1.18-26.287-10.652-39.773a.092.092 0 0 0-.048-.041zM23.725 37.307c-3.418 0-6.223-3.162-6.223-7.054 0-3.893 2.775-7.055 6.223-7.055 3.464 0 6.222 3.184 6.223 7.055 0 3.892-2.775 7.054-6.223 7.054zm23.549 0c-3.419 0-6.224-3.162-6.224-7.054 0-3.893 2.775-7.055 6.224-7.055 3.463 0 6.222 3.184 6.223 7.055 0 3.892-2.76 7.054-6.223 7.054z" fill="#fff"/>
+                </svg>
+                Discord
+            </a>
+        </div>
+        <!-- End Social Bar -->
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showPanel(0)">Ghost</button>
+            <button class="nav-btn" onclick="showPanel(1)">Identity</button>
+            <button class="nav-btn" onclick="showPanel(2)">Public</button>
+            <button class="nav-btn" onclick="showPanel(3)">Shadow</button>
+            <button class="nav-btn" onclick="showPanel(4)">Mind</button>
+        </div>
+        
+        <!-- Audio Controls -->
+        <div class="audio-controls">
+            <button class="audio-btn" onclick="toggleAudio()" id="audioBtn">🔊</button>
+        </div>
+
+        <!-- AUDIO TAG and SCRIPT ADDED HERE -->
+        <audio id="bgmusic" src="https://audio.jukehost.co.uk/A0fw6mtZ60JvjWG3QKbd5ltH2afGtI5O" loop autoplay></audio>
+
+        <script>
+            let currentPanel = 0;
+            const panels = document.querySelectorAll('.panel');
+            const navBtns = document.querySelectorAll('.nav-btn');
+            let audioEnabled = true; // start with audio enabled
+            const bgMusic = document.getElementById('bgmusic');
+            bgMusic.volume = 0.1;
+            bgMusic.muted = false;
+
+            setInterval(() => {
+                if (currentPanel < panels.length - 1) {
+                    showPanel(currentPanel + 1);
+                } else {
+                    showPanel(0);
+                }
+            }, 12000);
+
+            function showPanel(index) {
+                panels[currentPanel].classList.remove('active');
+                navBtns[currentPanel].classList.remove('active');
+                currentPanel = index;
+                panels[currentPanel].classList.add('active');
+                navBtns[currentPanel].classList.add('active');
+                if (audioEnabled) { playTransitionSound(); }
+            }
+
+            function toggleAudio() {
+                audioEnabled = !audioEnabled;
+                const btn = document.getElementById('audioBtn');
+                btn.textContent = audioEnabled ? '🔊' : '🔇';
+                if(bgMusic) {
+                    if(audioEnabled) {
+                        bgMusic.muted = false;
+                        bgMusic.play();
+                    } else {
+                        bgMusic.muted = true;
+                        bgMusic.pause();
+                    }
+                }
+            }
+
+            function playTransitionSound() {
+                // Create a subtle audio cue
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' && currentPanel < panels.length - 1) {
+                    showPanel(currentPanel + 1);
+                } else if (e.key === 'ArrowLeft' && currentPanel > 0) {
+                    showPanel(currentPanel - 1);
+                }
+            });
+
+            function typeText(element, text, speed = 50) {
+                element.textContent = '';
+                for (let i = 0; i < text.length; i++) {
+                    setTimeout(() => {
+                        element.textContent += text[i];
+                    }, i * speed);
+                }
+            }
+            setTimeout(() => {
+                const quotes = document.querySelectorAll('.quote');
+                quotes.forEach((quote, index) => {
+                    const originalText = quote.textContent;
+                    setTimeout(() => {
+                        typeText(quote, originalText);
+                    }, index * 3000);
+                });
+            }, 2000);
+        </script>
+        <!-- END AUDIO TAG AND SCRIPT -->
+    </div>
+</body>
+</html>
